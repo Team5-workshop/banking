@@ -3,19 +3,19 @@ const setup = require("../db_setup");
 
 // 특정 사용자의 거래 내역을 조회하는 라우터
 router.get("/transactions", async (req, res) => {
-  const userid = req.session.user?.userid; // 세션에서 userid를 가져옴
+  const user_id = req.session.user?.user_id; // 세션에서 userid를 가져옴
   const { mongodb } = await setup();
 
-  console.log(`${userid}가 거래내역을 확인하려 했습니다.`);
+  console.log(`${user_id}가 거래내역을 확인하려 했습니다.`);
 
-  if (!userid) {
+  if (!user_id) {
     return res.redirect("/user/login");
   }
 
   try {
     const transactions = await mongodb
       .collection("transaction")
-      .find({ user_id: userid })
+      .find({ user_id })
       .toArray();
     res.render("transactions", { transactions });
   } catch (err) {
@@ -54,7 +54,7 @@ router.post("/transactions/submit", async function (req, res) {
     await collection.insertOne(transaction);
     console.log("Transaction saved to MongoDB:", transaction);
 
-    res.redirect("/list"); // 성공 시 /list 페이지로 리디렉션
+    res.redirect("/transactions/list"); // 성공 시 /list 페이지로 리디렉션
   } catch (error) {
     console.error("Error occurred in /submit route:", error);
     res.status(500).send("Internal Server Error");

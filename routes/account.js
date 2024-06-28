@@ -25,20 +25,19 @@ function accountNoMasking(accountNo) {
 
 // 로그인 상태 확인 미들웨어
 function check(req, res, next) {
-  console.log(req.session.user);
   if (!req.session.user) {
-    return res.status(500).send();
+    res.redirect("/");
   }
   next();
 }
 
 // 계좌 정보 조회
 router.get("/account", check, async (req, res) => {
-  const userid = req.session.user.userid;
+  const user_id = req.session.user.user_id;
   const { mongodb } = await setup();
   mongodb
     .collection("account")
-    .find({ userid })
+    .find({ user_id })
     .toArray()
     .then((accounts) => {
       // 계좌번호 마스킹
@@ -48,19 +47,19 @@ router.get("/account", check, async (req, res) => {
       res.render("account", { accounts });
     })
     .catch((err) => {
-      res.redirect("/login");
+      return res.status(500).send();
     });
 });
 
 // 로그인 상태를 확인한 후 계좌 등록 페이지를 표시
 router.get("/account/enter", check, (req, res) => {
-  res.render("enter.ejs", { userid: req.session.user.userid }); // 로그인된 사용자의 user_id 사용
+  res.render("accountEnter.ejs", { user_id: req.session.user.user_id }); // 로그인된 사용자의 user_id 사용
 });
 
 // 로그인 상태를 확인한 후 새로운 계좌를 등록
 router.post("/account/enter", check, async (req, res) => {
   const { mongodb } = await setup();
-  const user_id = req.session.user.user_id;
+  const user_id = req.session.user.userid;
   const { account_pw, balance } = req.body; //새로운 비밀번호와 잔액을 받음
   const newAccount = {
     account_number: account_Number(),
