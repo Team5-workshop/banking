@@ -6,11 +6,10 @@ const app = express();
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-
 // app 등록 과정
 app.use(
   session({
-    secret: SECRET_KEY,
+    secret: process.env.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: false,
   })
