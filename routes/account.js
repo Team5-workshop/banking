@@ -48,12 +48,12 @@ router.get("/", check, (req, res) => {
 });
 
 // 로그인 상태를 확인한 후 계좌 등록 페이지를 표시
-router.get("/enter", checkLogin, (req, res) => {
+router.get("/enter", check, (req, res) => {
   res.render("enter.ejs", { user_id: req.session.user.user_id }); // 로그인된 사용자의 user_id 사용
 });
 
 // 로그인 상태를 확인한 후 새로운 계좌를 등록
-router.post("/enter", checkLogin, (req, res) => {
+router.post("/enter", check, (req, res) => {
   const user_id = req.session.user.user_id; 
   const { account_pw, balance } = req.body; //새로운 비밀번호와 잔액을 받음
   const newAccount = {
