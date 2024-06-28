@@ -78,9 +78,11 @@ router.post("/user/login", async (req, res) => {
         const hashedPw = sha(userpw + salt);
 
         if (user.userpw === hashedPw) {
+          console.log(user);
           req.session.user = user; // serialize
           res.cookie("uid", userid);
           res.redirect("/");
+          console.log(req.session.user); // serialize
         } else {
           res.render("login", { data: { alertMsg: "비밀번호가 틀렸습니다." } });
         }

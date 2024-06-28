@@ -29,6 +29,7 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use("/", require("./routes/account")); // 계좌
 app.use("/", require("./routes/user")); // 고객
+app.use("/", require("./routes/transactions")); //
 
 // 메인 페이지 라우트
 app.get("/", (req, res) => {
