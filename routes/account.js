@@ -2,16 +2,15 @@ const express = require('express');
 const router = express.Router();
 const ObjId = require("mongodb").ObjectId;
 
-// 계좌번호 자동발급 (33??-??-??????)
-function account_Number() {
-  const part1 = `33${Math.floor(10 + Math.random() * 90)}`; 
-  const part2 = Math.floor(10 + Math.random() * 90); 
+function generateAccountNumber() {
+  const part1 = `33${Math.floor(10 + Math.random() * 90)}`; // 3300-3399 사이의 숫자
+  const part2 = Math.floor(10 + Math.random() * 90); // 10-99 사이의 숫자
   const part3 = Math.floor(100000 + Math.random() * 900000); 
   return `${part1}-${part2}-${part3}`;
 }
 
-// 뒷자리 5자리를 마스킹
 function accountNoMasking(accountNo) {
+  // 계좌번호는 숫자와 하이픈으로 구성됨
   const regex = /^[0-9-]+$/;
   if (regex.test(accountNo)) {
     const length = accountNo.length;
@@ -22,42 +21,31 @@ function accountNoMasking(accountNo) {
   return accountNo;
 }
 
-
-function check(req, res, next) {
-  if (!req.session.user) {
-    return res.status(500).send();
-  }
-  next();
-}
-router.get("/", check, (req, res) => {
-  const user_id = req.session.user.user_id; 
-      mydb
-      .collection("account")
-      .find({ user_id })
-      .toArray()
-      .then(accounts => {
-        // 계좌번호 마스킹
+router.get("/", (req, res) => {
+  const user_id = req.query.user_id || "test_user";  // 디버깅을 위해 임의의 user_id 사용
+  req.app.locals.db.collection("account").find({ user_id }).toArray()
+    .then(accounts => {
+      // 각 계좌번호를 마스킹
       accounts.forEach(account => {
         account.account_number = accountNoMasking(account.account_number);
       });
       res.render("account", { accounts });
     })
     .catch(err => {
-      res.status(500).send();
+      console.error("Failed to retrieve accounts:", err);
+      res.status(500).send("Failed to retrieve accounts");
     });
 });
 
-// 로그인 상태를 확인한 후 계좌 등록 페이지를 표시
-router.get("/enter", check, (req, res) => {
-  res.render("enter.ejs", { user_id: req.session.user.user_id }); // 로그인된 사용자의 user_id 사용
+router.get("/enter", (req, res) => {
+  res.render("enter.ejs", { user_id: "test_user" }); // 디버깅을 위해 임의의 user_id 사용
 });
 
-// 로그인 상태를 확인한 후 새로운 계좌를 등록
-router.post("/enter", check, (req, res) => {
-  const user_id = req.session.user.user_id; 
-  const { account_pw, balance } = req.body; //새로운 비밀번호와 잔액을 받음
+router.post("/enter", (req, res) => {
+  const user_id = req.body.user_id || "test_user";  // 디버깅을 위해 임의의 user_id 사용
+  const { account_pw, balance } = req.body;
   const newAccount = {
-    account_number: account_Number(), 
+    account_number: generateAccountNumber(), // 생성된 계좌번호 사용
     account_pw,
     balance: parseInt(balance),
     user_id,
@@ -66,21 +54,22 @@ router.post("/enter", check, (req, res) => {
   };
   
   // account 컬렉션에 새 계좌 삽입
-      mydb
-      .collection("account")
-      .insertOne(newAccount)
-      .then(result => {
+  req.app.locals.db.collection("account").insertOne(newAccount)
+    .then(result => {
+      console.log("Account inserted:", result);
       // user 컬렉션에 계좌 정보 업데이트
-      return mydb.collection("user").updateOne(
+      return req.app.locals.db.collection("user").updateOne(
         { user_id },
         { $push: { account_pk: newAccount.account_pk } }
       );
     })
-        .then(result => {
-          res.redirect("/account");
+    .then(result => {
+      console.log("User updated:", result);
+      res.redirect("/account?user_id=" + user_id);
     })
-        .catch(err => {
-          res.status(500).send();
+    .catch(err => {
+      console.error("Failed to create account:", err);
+      res.status(500).send("Failed to create account");
     });
 });
 
