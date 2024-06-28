@@ -31,9 +31,12 @@ function check(req, res, next) {
 }
 router.get("/", check, (req, res) => {
   const user_id = req.session.user.user_id; 
-  req.app.locals.db.collection("account").find({ user_id }).toArray()
-    .then(accounts => {
-      // 계좌번호 마스킹
+      mydb
+      .collection("account")
+      .find({ user_id })
+      .toArray()
+      .then(accounts => {
+        // 계좌번호 마스킹
       accounts.forEach(account => {
         account.account_number = accountNoMasking(account.account_number);
       });
@@ -63,20 +66,21 @@ router.post("/enter", checkLogin, (req, res) => {
   };
   
   // account 컬렉션에 새 계좌 삽입
-  req.app.locals.db.collection("account").insertOne(newAccount)
-    .then(result => {
-      console.log("Account inserted:", result);
+      mydb
+      .collection("account")
+      .insertOne(newAccount)
+      .then(result => {
       // user 컬렉션에 계좌 정보 업데이트
-      return req.app.locals.db.collection("user").updateOne(
+      return mydb("user").updateOne(
         { user_id },
         { $push: { account_pk: newAccount.account_pk } }
       );
     })
-    .then(result => {
-      res.redirect("/account");
+        .then(result => {
+          res.redirect("/account");
     })
-    .catch(err => {
-      res.status(500).send();
+        .catch(err => {
+          res.status(500).send();
     });
 });
 
