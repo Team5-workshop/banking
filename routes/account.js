@@ -71,7 +71,7 @@ router.post("/enter", checkLogin, (req, res) => {
       .insertOne(newAccount)
       .then(result => {
       // user 컬렉션에 계좌 정보 업데이트
-      return mydb("user").updateOne(
+      return mydb.collection("user").updateOne(
         { user_id },
         { $push: { account_pk: newAccount.account_pk } }
       );
