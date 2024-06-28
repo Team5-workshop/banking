@@ -65,37 +65,37 @@
         <h2>Bank Transfer</h2>
         <form action="/submit" method="POST" id="transferForm">
             <div class="form-group">
-                <label for="transactionType">Transaction Type</label>
+                <label for="transactionType"></label>
                 <div class="radio-group">
                     <label>
-                        <input type="radio" name="transactionType" value="Transfer" required> Transfer
+                        <input type="radio" name="transactionType" value="입금" required> 입금
                     </label>
                     <label>
-                        <input type="radio" name="transactionType" value="Remittance"> Remittance
+                        <input type="radio" name="transactionType" value="출금"> 출금
                     </label>
                     <label>
-                        <input type="radio" name="transactionType" value="Withdrawal"> Withdrawal
+                        <input type="radio" name="transactionType" value="이체"> 이체
                     </label>
                 </div>
             </div>
             <div class="form-group">
-                <label for="accountNumber">Account Number</label>
-                <input type="text" id="accountNumber" name="accountNumber" required>
+                <label for="accountNumber">계좌 번호</label>
+                <input type="number" id="accountNumber" name="accountNumber" required>
             </div>
             <div class="form-group">
-                <label for="recipientAccountNumber">Recipient Account Number</label>
-                <input type="text" id="recipientAccountNumber" name="recipientAccountNumber" required>
+                <label for="recipientAccountNumber">받는 사람 계좌 번호</label>
+                <input type="number" id="recipientAccountNumber" name="recipientAccountNumber" required>
             </div>
             <div class="form-group">
-                <label for="amount">Amount</label>
+                <label for="amount">금액</label>
                 <input type="number" id="amount" name="amount" required>
             </div>
             <div class="form-group">
-                <label for="transferTime">Transfer Time</label>
+                <label for="transferTime">보내는 시간</label>
                 <input type="text" id="transferTime" name="transferTime" readonly>
             </div>
             <div class="form-group">
-                <button type="submit">Submit</button>
+                <button type="submit">보내기</button>
             </div>
         </form>
     </div>
@@ -113,5 +113,6 @@
         // 페이지 로드 시 현재 시간을 설정
         document.getElementById('transferTime').value = getCurrentTime();
     </script>
+     <script src="/trsns"></script>
 </body>
 </html>

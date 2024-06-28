@@ -6,6 +6,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 // app.get('/', (req, res) => {
 //   res.render('index');
 // });
@@ -39,28 +40,31 @@ app.get("/list", async function (req, res) {
     res.status(500).send('Internal Server Error');
   }
 });
-app.get("/trsns",(req,res)=>{
-  res.sendFile(__dirname + "/enter.html");
-})
+app.get("/trsns", (req, res) => {
+  res.render('trsns'); // EJS 파일을 렌더링
+});
 
 
-
-app.post('/submit', async (req, res) => {
-  const db = await connectDB();
-  const newTransaction = {
-    transaction_type: req.body.transactionType,
-    from_account: req.body.accountNumber,
-    to_account: req.body.recipientAccountNumber,
-    amount: parseFloat(req.body.amount),
-    transaction_date: req.body.transferTime,
-  };
-
+app.post("/submit", async function (req, res) {
   try {
-    await db.collection('transactions').insertOne(newTransaction);
-    res.send('Transaction saved successfully.');
-  } catch (err) {
-    console.error('Error saving transaction:', err);
-    res.send('Error saving transaction.');
+    const { mongodb } = await setup(); // setup()으로 connectDB 함수 호출
+    const collection = mongodb.collection('Transaction');
+
+    const transaction = {
+      transaction_type: req.body.transactionType,
+      from_account: req.body.accountNumber,
+      to_account: req.body.recipientAccountNumber,
+      amount: req.body.amount,
+      transaction_date: req.body.transferTime,
+    };
+
+    await collection.insertOne(transaction);
+    console.log('Transaction saved to MongoDB:', transaction);
+
+    res.redirect('/list'); // 성공 시 /list 페이지로 리디렉션
+  } catch (error) {
+    console.error('Error occurred in /submit route:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
