@@ -26,14 +26,14 @@ function accountNoMasking(accountNo) {
 // 로그인 상태 확인 미들웨어
 function check(req, res, next) {
   if (!req.session.user) {
-    res.redirect("/");
+    res.render("login", { data: { alertMsg: "먼저 로그인을 해주세요" } });
   }
   next();
 }
 
 // 계좌 정보 조회
 router.get("/account", check, async (req, res) => {
-  const user_id = req.session.user.user_id;
+  const user_id = req.session.user?.user_id;
   const { mongodb } = await setup();
   mongodb
     .collection("account")
@@ -53,7 +53,7 @@ router.get("/account", check, async (req, res) => {
 
 // 로그인 상태를 확인한 후 계좌 등록 페이지를 표시
 router.get("/account/enter", check, (req, res) => {
-  res.render("accountEnter.ejs", { user_id: req.session.user.user_id }); // 로그인된 사용자의 user_id 사용
+  res.render("accountEnter.ejs", { user_id: req.session.user?.user_id }); // 로그인된 사용자의 user_id 사용
 });
 
 // 로그인 상태를 확인한 후 새로운 계좌를 등록
@@ -87,7 +87,7 @@ router.post("/account/enter", check, async (req, res) => {
       res.redirect("/account");
     })
     .catch((err) => {
-      res.status(500).send();
+      res.render("login", { data: { alertMsg: "DB오류" } });
     });
 });
 
