@@ -26,7 +26,7 @@ const setup = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    mongodb = mongoConn.db("myboard");
+    mongodb = mongoConn.db("bank");
     console.log("몽고DB 접속 성공");
 
     // MySQL 접속
