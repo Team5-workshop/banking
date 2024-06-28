@@ -1,0 +1,19 @@
+<script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<script>
+  $(document).ready(function () {
+    const uid = $.cookie("uid");
+    if (uid) {
+      $("#login-link").hide();
+      $("#signup-link").hide();
+      $("#logout-link").show();
+    }
+
+    $("#logout-link").click(function (event) {
+      event.preventDefault();
+      $.removeCookie("uid", { path: "/" });
+      window.location.href = "/user/logout";
+    });
+  });
+</script>

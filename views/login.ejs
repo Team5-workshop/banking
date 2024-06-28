@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="auto">
+  <%- include('partials/head.html') %>
+  <body class="d-flex h-100 text-center text-bg-dark">
+    <%- include('partials/backGround.html') %>
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+      <%- include('partials/header.html') %>
+
+      <main class="form-signin w-100 m-auto text-center">
+        <h1 class="h3 mb-3 fw-normal text-white">로그인</h1>
+        <form action="/user/login" method="post">
+          <div class="mb-3">
+            <label for="userid" class="form-label text-white">ID</label>
+            <input
+              type="text"
+              class="form-control"
+              id="userid"
+              name="userid"
+              placeholder="ID"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="userpw" class="form-label text-white">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="userpw"
+              name="userpw"
+              placeholder="Password"
+              required
+            />
+          </div>
+          <button class="w-100 btn btn-lg btn-primary mt-3" type="submit">
+            Login
+          </button>
+        </form>
+        <% if (data && data.alertMsg) { %>
+        <div class="alert alert-danger mt-3"><%= data.alertMsg %></div>
+        <% } %>
+      </main>
+
+      <footer class="mt-auto text-white-50">
+        <p>
+          Cover template for
+          <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>,
+          by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.
+        </p>
+      </footer>
+    </div>
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

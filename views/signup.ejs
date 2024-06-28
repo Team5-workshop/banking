@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="auto">
+  <%- include('partials/head.html') %>
+  <body class="d-flex h-100 text-center text-bg-dark">
+    <%- include('partials/backGround.html') %>
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+      <%- include('partials/header.html') %>
+
+      <main class="form-signup w-40 m-auto text-center">
+        <h1 class="h3 mb-3 fw-normal text-white">회원가입</h1>
+        <form action="/user/signup" method="post">
+          <div class="mb-3">
+            <label for="userid" class="form-label text-white">ID</label>
+            <input
+              type="text"
+              class="form-control"
+              id="userid"
+              name="userid"
+              placeholder="ID"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="useremail" class="form-label text-white">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="useremail"
+              name="useremail"
+              placeholder="Email"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="userpw" class="form-label text-white">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="userpw"
+              name="userpw"
+              placeholder="Password"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="username" class="form-label text-white">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+              placeholder="Name"
+              required
+            />
+          </div>
+          <button class="w-100 btn btn-lg btn-primary mt-3" type="submit">
+            회원가입
+          </button>
+        </form>
+        <% if (data && data.msg) { %>
+        <div class="alert alert-danger mt-3"><%= data.msg %></div>
+        <% } %>
+      </main>
+
+      <footer class="mt-auto text-white-50">
+        <p>
+          Cover template for
+          <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>,
+          by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.
+        </p>
+      </footer>
+    </div>
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
