@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const setup = require("../db_setup");
-const ObjId = require("mongodb").ObjectId;
+const sha = require("sha256");
+const crypto = require("crypto");
+const { ObjectId } = require("mongodb");
 
 // 계좌번호 자동발급 (33??-??-??????)
 function account_Number() {
@@ -11,40 +13,29 @@ function account_Number() {
   return `${part1}-${part2}-${part3}`;
 }
 
-// 뒷자리 5자리를 마스킹
-function accountNoMasking(accountNo) {
-  const regex = /^[0-9-]+$/;
-  if (regex.test(accountNo)) {
-    const length = accountNo.length;
-    if (length >= 5) {
-      return accountNo.slice(0, -5) + "*****";
-    }
-  }
-  return accountNo;
-}
-
 // 로그인 상태 확인 미들웨어
 function check(req, res, next) {
   if (!req.session.user) {
-    res.render("login", { data: { alertMsg: "먼저 로그인을 해주세요" } });
+    res.render("login", {
+      data: { alertMsg: "먼저 로그인을 해주세요" },
+      user: null,
+    });
+    return;
   }
   next();
 }
 
 // 계좌 정보 조회
 router.get("/account", check, async (req, res) => {
-  const user_id = req.session.user?.user_id;
+  const user_id = req.session.user.user_id;
   const { mongodb } = await setup();
+
   mongodb
     .collection("account")
-    .find({ user_id })
+    .find({ user_id: new ObjectId(user_id) }) // user_id를 ObjectId로 변환하여 사용
     .toArray()
     .then((accounts) => {
-      // 계좌번호 마스킹
-      accounts.forEach((account) => {
-        account.account_number = accountNoMasking(account.account_number);
-      });
-      res.render("account", { accounts });
+      res.render("accountList", { accounts });
     })
     .catch((err) => {
       return res.status(500).send();
@@ -53,42 +44,52 @@ router.get("/account", check, async (req, res) => {
 
 // 로그인 상태를 확인한 후 계좌 등록 페이지를 표시
 router.get("/account/enter", check, (req, res) => {
-  res.render("accountEnter.ejs", { user_id: req.session.user?.user_id }); // 로그인된 사용자의 user_id 사용
+  res.render("accountEnter", { user_id: req.session.user.user_id });
 });
 
 // 로그인 상태를 확인한 후 새로운 계좌를 등록
 router.post("/account/enter", check, async (req, res) => {
-  const { mongodb } = await setup();
-  const user_id = req.session.user.userid;
-  const { account_pw, balance } = req.body; //새로운 비밀번호와 잔액을 받음
+  const { mongodb, mysqldb } = await setup();
+  const user_id = req.session.user.user_id;
+  const { account_pw, balance } = req.body;
+
+  // 솔트 생성
+  const generateSalt = (length = 16) => {
+    return crypto.randomBytes(length).toString("hex");
+  };
+  const salt = generateSalt();
+  const hashedPw = sha(account_pw + salt);
+
   const newAccount = {
     account_number: account_Number(),
-    account_pw,
+    account_pw: hashedPw,
     balance: parseInt(balance),
-    user_id,
-    account_pk: new ObjId(),
+    user_id: new ObjectId(user_id), // user_id를 ObjectId로 변환하여 사용
     account_date: new Date(),
   };
 
-  // account 컬렉션에 새 계좌 삽입
-  mongodb
-    .collection("account")
-    .insertOne(newAccount)
-    .then((result) => {
-      // user 컬렉션에 계좌 정보 업데이트
-      return mongodb
-        .collection("user")
-        .updateOne(
-          { user_id },
-          { $push: { account_pk: newAccount.account_pk } }
-        );
-    })
-    .then((result) => {
+  try {
+    const result = await mongodb.collection("account").insertOne(newAccount);
+
+    if (result.insertedId) {
+      const sql =
+        "INSERT INTO AccountSalt(account_id, account_salt) VALUES(?, ?)";
+      mysqldb.query(sql, [result.insertedId.toString(), salt], (err) => {
+        if (err) {
+          console.log("Salt 저장 실패:", err);
+        } else {
+          console.log("Salt 저장 성공");
+        }
+      });
+
       res.redirect("/account");
-    })
-    .catch((err) => {
-      res.render("login", { data: { alertMsg: "DB오류" } });
-    });
+    } else {
+      res.render("login", { data: { alertMsg: "DB오류" }, user: null });
+    }
+  } catch (err) {
+    console.log("계좌 등록 실패:", err);
+    res.render("login", { data: { alertMsg: "계좌 등록 실패" }, user: null });
+  }
 });
 
 module.exports = router;

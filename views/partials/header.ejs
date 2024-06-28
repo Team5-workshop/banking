@@ -9,12 +9,12 @@
         class="nav-link fw-bold py-1 px-3 active"
         aria-current="page"
         href="/transactions"
-        >송금하기</a
+        >거래하기</a
       ><a
         class="nav-link fw-bold py-1 px-3 active"
         aria-current="page"
-        href="/transactions/list"
-        >전체 거래역 조회</a
+        href="/transactions/history"
+        >거래내역 조회</a
       ><a
         class="nav-link fw-bold py-1 px-3 active"
         aria-current="page"
@@ -29,19 +29,20 @@
       <a class="nav-link fw-bold py-1 px-3 active" aria-current="page" href="/"
         >Home</a
       >
+      <% if (!user) { %>
       <a class="nav-link fw-bold py-1 px-3" id="signup-link" href="/user/signup"
         >Sign Up</a
       >
       <a class="nav-link fw-bold py-1 px-3" id="login-link" href="/user/login"
         >Login</a
       >
-      <a
-        class="nav-link fw-bold py-1 px-3"
-        id="logout-link"
-        href="/user/logout"
-        style="display: none"
+      <% } else { %>
+
+      <a class="nav-link fw-bold py-1 px-3" id="logout-link" href="/user/logout"
         >Logout</a
       >
+      <p>환영합니다, <%= user.user_name %>님</p>
+      <% } %>
     </nav>
   </div>
 </header>

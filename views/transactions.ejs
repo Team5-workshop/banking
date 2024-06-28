@@ -1,105 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bank Transfer</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 50px;
-        background-color: #f4f4f4;
-      }
-      .container {
-        max-width: 500px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
-      h2 {
-        text-align: center;
-        color: #333;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        color: #555;
-      }
-      .form-group input,
-      .form-group select {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
-      .form-group button {
-        width: 100%;
-        padding: 10px;
-        background-color: #28a745;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-      .form-group button:hover {
-        background-color: #218838;
-      }
-      .form-group .radio-group {
-        display: flex;
-        justify-content: space-around;
-        margin-bottom: 15px;
-      }
-      .form-group .radio-group label {
-        display: inline-block;
-        color: #555;
-      }
-    </style>
-  </head>
+  <%- include('partials/head.html') %>
   <body>
     <div class="container">
       <h2>Bank Transfer</h2>
-      <form action="/transaction/submit" method="POST" id="transferForm">
+      <div class="form-group">
+        <label for="transactionType">거래 유형</label>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="transactionType" value="입금" required />
+            입금
+          </label>
+          <label>
+            <input type="radio" name="transactionType" value="출금" /> 출금
+          </label>
+          <label>
+            <input type="radio" name="transactionType" value="이체" /> 이체
+          </label>
+        </div>
+      </div>
+
+      <!-- Deposit Form -->
+      <form
+        action="/transactions/deposit"
+        method="POST"
+        id="depositForm"
+        style="display: none"
+      >
         <div class="form-group">
-          <label for="transactionType"></label>
-          <div class="radio-group">
-            <label>
-              <input
-                type="radio"
-                name="transactionType"
-                value="입금"
-                required
-              />
-              입금
-            </label>
-            <label>
-              <input type="radio" name="transactionType" value="출금" /> 출금
-            </label>
-            <label>
-              <input type="radio" name="transactionType" value="이체" /> 이체
-            </label>
-          </div>
+          <label for="accountNumber">계좌 선택</label>
+          <select id="accountNumber" name="accountNumber" required>
+            <% accounts.forEach(function(account) { %>
+            <option value="<%= account.account_number %>">
+              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%=
+              account.balance %>
+            </option>
+            <% }) %>
+          </select>
         </div>
         <div class="form-group">
-          <label for="accountNumber">계좌 번호</label>
+          <label for="accountPassword">계좌 비밀번호</label>
           <input
-            type="number"
-            id="accountNumber"
-            name="accountNumber"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="recipientAccountNumber">받는 사람 계좌 번호</label>
-          <input
-            type="number"
-            id="recipientAccountNumber"
-            name="recipientAccountNumber"
+            type="password"
+            id="accountPassword"
+            name="accountPassword"
             required
           />
         </div>
@@ -109,7 +53,121 @@
         </div>
         <div class="form-group">
           <label for="transferTime">보내는 시간</label>
-          <input type="text" id="transferTime" name="transferTime" readonly />
+          <input type="text" id="transferTime1" name="transferTime" readonly />
+        </div>
+        <div class="form-group">
+          <button type="submit">보내기</button>
+        </div>
+      </form>
+
+      <!-- Withdrawal Form -->
+      <form
+        action="/transactions/withdraw"
+        method="POST"
+        id="withdrawForm"
+        style="display: none"
+      >
+        <div class="form-group">
+          <label for="accountNumber">계좌 선택</label>
+          <select id="accountNumber" name="accountNumber" required>
+            <% accounts.forEach(function(account) { %>
+            <option value="<%= account.account_number %>">
+              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%=
+              account.balance %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="accountPassword">계좌 비밀번호</label>
+          <input
+            type="password"
+            id="accountPassword"
+            name="accountPassword"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="amount">금액</label>
+          <input type="number" id="amount" name="amount" required />
+        </div>
+        <div class="form-group">
+          <label for="transferTime">보내는 시간</label>
+          <input type="text" id="transferTime2" name="transferTime" readonly />
+        </div>
+        <div class="form-group">
+          <button type="submit">보내기</button>
+        </div>
+      </form>
+
+      <!-- Transfer Form -->
+      <form
+        action="/transactions/transfer"
+        method="POST"
+        id="transferForm"
+        style="display: none"
+      >
+        <div class="form-group">
+          <label for="accountNumber">계좌 선택</label>
+          <select id="accountNumber" name="accountNumber" required>
+            <% accounts.forEach(function(account) { %>
+            <option value="<%= account.account_number %>">
+              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%=
+              account.balance %>
+            </option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="recipientAccountPart1">받는 사람 계좌 번호</label>
+          <div class="d-flex">
+            <input
+              type="number"
+              id="recipientAccountPart1"
+              name="recipientAccountPart1"
+              class="form-control"
+              placeholder="xxxx"
+              maxlength="4"
+              required
+            />
+            <span>-</span>
+            <input
+              type="number"
+              id="recipientAccountPart2"
+              name="recipientAccountPart2"
+              class="form-control"
+              placeholder="xx"
+              maxlength="2"
+              required
+            />
+            <span>-</span>
+            <input
+              type="number"
+              id="recipientAccountPart3"
+              name="recipientAccountPart3"
+              class="form-control"
+              placeholder="xxxxxx"
+              maxlength="6"
+              required
+            />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="accountPassword">계좌 비밀번호</label>
+          <input
+            type="password"
+            id="accountPassword"
+            name="accountPassword"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="amount">금액</label>
+          <input type="number" id="amount" name="amount" required />
+        </div>
+        <div class="form-group">
+          <label for="transferTime">보내는 시간</label>
+          <input type="text" id="transferTime3" name="transferTime" readonly />
         </div>
         <div class="form-group">
           <button type="submit">보내기</button>
@@ -124,14 +182,51 @@
       }
 
       document
+        .getElementById("depositForm")
+        .addEventListener("submit", function (e) {
+          document.getElementById("transferTime1").value = getCurrentTime();
+        });
+
+      document
+        .getElementById("withdrawForm")
+        .addEventListener("submit", function (e) {
+          document.getElementById("transferTime2").value = getCurrentTime();
+        });
+
+      document
         .getElementById("transferForm")
         .addEventListener("submit", function (e) {
-          document.getElementById("transferTime").value = getCurrentTime();
+          document.getElementById("transferTime3").value = getCurrentTime();
         });
 
       // 페이지 로드 시 현재 시간을 설정
-      document.getElementById("transferTime").value = getCurrentTime();
+      document.getElementById("transferTime1").value = getCurrentTime();
+      document.getElementById("transferTime2").value = getCurrentTime();
+      document.getElementById("transferTime3").value = getCurrentTime();
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const transactionTypeInputs = document.querySelectorAll(
+          'input[name="transactionType"]'
+        );
+
+        function toggleForms() {
+          const selectedType = document.querySelector(
+            'input[name="transactionType"]:checked'
+          ).value;
+          document.getElementById("depositForm").style.display =
+            selectedType === "입금" ? "block" : "none";
+          document.getElementById("withdrawForm").style.display =
+            selectedType === "출금" ? "block" : "none";
+          document.getElementById("transferForm").style.display =
+            selectedType === "이체" ? "block" : "none";
+        }
+
+        transactionTypeInputs.forEach((input) => {
+          input.addEventListener("change", toggleForms);
+        });
+
+        toggleForms(); // 초기 상태 설정
+      });
     </script>
-    <script src="/trsns"></script>
   </body>
 </html>
