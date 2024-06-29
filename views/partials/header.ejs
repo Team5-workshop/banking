@@ -1,0 +1,48 @@
+<header class="mb-auto">
+  <div>
+    <h3 class="float-md-start mb-0">Banking System</h3>
+    <nav
+      class="nav nav-masthead justify-content-center float-md-end"
+      id="nav-menu"
+    >
+      <a
+        class="nav-link fw-bold py-1 px-3 active"
+        aria-current="page"
+        href="/transactions"
+        >거래하기</a
+      ><a
+        class="nav-link fw-bold py-1 px-3 active"
+        aria-current="page"
+        href="/transactions/history"
+        >거래내역 조회</a
+      ><a
+        class="nav-link fw-bold py-1 px-3 active"
+        aria-current="page"
+        href="/account"
+        >계좌 조회하기</a
+      ><a
+        class="nav-link fw-bold py-1 px-3 active"
+        aria-current="page"
+        href="/account/enter"
+        >계좌 등록하기</a
+      >
+      <a class="nav-link fw-bold py-1 px-3 active" aria-current="page" href="/"
+        >Home</a
+      >
+      <% if (!user) { %>
+      <a class="nav-link fw-bold py-1 px-3" id="signup-link" href="/user/signup"
+        >Sign Up</a
+      >
+      <a class="nav-link fw-bold py-1 px-3" id="login-link" href="/user/login"
+        >Login</a
+      >
+      <% } else { %>
+
+      <a class="nav-link fw-bold py-1 px-3" id="logout-link" href="/user/logout"
+        >Logout</a
+      >
+      <p>환영합니다, <%= user.user_name %>님</p>
+      <% } %>
+    </nav>
+  </div>
+</header>
