@@ -68,13 +68,13 @@
                 <label for="transactionType"></label>
                 <div class="radio-group">
                     <label>
-                        <input type="radio" name="transactionType" value="입금" required> 입금
+                        <input type="radio" name="transactionType" value="입금" required onclick="toggleRecipient(false)"> 입금
                     </label>
                     <label>
-                        <input type="radio" name="transactionType" value="출금"> 출금
+                        <input type="radio" name="transactionType" value="출금"required onclick="toggleRecipient(false)"> 출금
                     </label>
                     <label>
-                        <input type="radio" name="transactionType" value="이체"> 이체
+                        <input type="radio" name="transactionType" value="이체" required onclick="toggleRecipient(true)"> 이체
                     </label>
                 </div>
             </div>
@@ -82,13 +82,17 @@
                 <label for="accountNumber">계좌 번호</label>
                 <input type="number" id="accountNumber" name="accountNumber" required>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="recipientAccountGroup">
                 <label for="recipientAccountNumber">받는 사람 계좌 번호</label>
                 <input type="number" id="recipientAccountNumber" name="recipientAccountNumber" required>
             </div>
             <div class="form-group">
                 <label for="amount">금액</label>
                 <input type="number" id="amount" name="amount" required>
+            </div>
+            <div class="form-group">
+                <label for="accountPw">계조 비밀번호</label>
+                <input type="password" id="accountPw" name="accountPw" required>
             </div>
             <div class="form-group">
                 <label for="transferTime">보내는 시간</label>
@@ -106,13 +110,23 @@
             return now.toLocaleString();
         }
 
+        function toggleRecipient(show) {
+            const recipientAccountGroup = document.getElementById('recipientAccountGroup');
+            recipientAccountGroup.style.display = show ? 'block' : 'none';
+            document.getElementById('recipientAccountNumber').required = show;
+        }
+
         document.getElementById('transferForm').addEventListener('submit', function(e) {
             document.getElementById('transferTime').value = getCurrentTime();
         });
 
         // 페이지 로드 시 현재 시간을 설정
         document.getElementById('transferTime').value = getCurrentTime();
+        
+        // 초기 설정: 숨기기
+        toggleRecipient(false);
     </script>
      <script src="/trsns"></script>
 </body>
 </html>
+
