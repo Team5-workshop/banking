@@ -80,7 +80,7 @@ router.post("/account/enter", check, async (req, res) => {
   const newAccount = {
     account_number,
     account_pw: hashedPw,
-    balance: parseInt(balance),
+    balance: parseInt(balance.replace(/,/g, ""), 10),
     user_id: new ObjectId(user_id), // user_id를 ObjectId로 변환하여 사용
     account_date: new Date(),
   };
@@ -89,8 +89,9 @@ router.post("/account/enter", check, async (req, res) => {
     const result = await mongodb.collection("account").insertOne(newAccount);
 
     if (result.insertedId) {
+      const objectIdString = result.insertedId.toHexString(); // ObjectId를 문자열로 변환
       const sql = "INSERT INTO AccountSalt(account_id, account_salt) VALUES(?, ?)";
-      mysqldb.query(sql, [result.insertedId.toString(), salt], (err) => {
+      mysqldb.query(sql, [objectIdString, salt], (err) => {
         if (err) {
           console.log("Salt 저장 실패:", err);
         } else {

@@ -1,119 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+  <link rel="stylesheet" href="/public/password-popup.css">
   <%- include('partials/head.html') %>
-  <body>
-    <div class="container">
-      <h2>Bank Transfer</h2>
-      <div class="form-group">
-        <label for="transactionType">거래 유형</label>
-        <div class="radio-group">
-          <label>
-            <input type="radio" name="transactionType" value="입금" required />
-            입금
+</head>
+<body>
+  <%- include('partials/backGround.html') %>
+  <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <%- include('partials/header') %>
+    <main class="px-3">
+      <div class="form-group mb-4">
+        <label for="transactionType" >거래 유형</label>
+        <div class="d-flex justify-content-center">
+          <label class="mx-3">
+            <input type="radio" name="transactionType" value="입금" required /> 입금
           </label>
-          <label>
+          <label class="mx-3">
             <input type="radio" name="transactionType" value="출금" /> 출금
           </label>
-          <label>
+          <label class="mx-3">
             <input type="radio" name="transactionType" value="이체" /> 이체
           </label>
         </div>
       </div>
 
       <!-- Deposit Form -->
-      <form
-        action="/transactions/deposit"
-        method="POST"
-        id="depositForm"
-        style="display: none"
-      >
+      <form action="/transactions/deposit" method="POST" id="depositForm" style="display: none;">
         <div class="form-group">
-          <label for="accountNumber">계좌 선택</label>
-          <select id="accountNumber" name="accountNumber" required>
+          <label for="depositAccountNumber">계좌 선택</label>
+          <select id="depositAccountNumber" name="accountNumber" required>
             <% accounts.forEach(function(account) { %>
             <option value="<%= account.account_number %>">
-              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%=
-              account.balance %>
+              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%= account.balance %>
             </option>
             <% }) %>
           </select>
         </div>
         <div class="form-group">
-          <label for="accountPassword">계좌 비밀번호</label>
-          <input
-            type="password"
-            id="accountPassword"
-            name="accountPassword"
-            required
-          />
+          <label for="depositAccountPassword">계좌 비밀번호</label>
+          <input type="password" id="depositAccountPassword" name="accountPassword" required readonly/>
+          <button type="button" class="btn btn-primary" id="openPwPopupDeposit">비밀번호 입력</button>
         </div>
         <div class="form-group">
-          <label for="amount">금액</label>
-          <input type="number" id="amount" name="amount" required />
+          <label for="depositAmount">금액</label>
+          <input type="number" id="depositAmount" name="amount" required />
         </div>
         <div class="form-group">
-          <label for="transferTime">보내는 시간</label>
-          <input type="text" id="transferTime1" name="transferTime" readonly />
+          <label for="depositTransferTime">보내는 시간</label>
+          <input type="text" id="depositTransferTime" name="transferTime" readonly />
         </div>
         <div class="form-group">
-          <button type="submit">보내기</button>
+          <button type="submit" class="btn btn-success">보내기</button>
         </div>
       </form>
 
       <!-- Withdrawal Form -->
-      <form
-        action="/transactions/withdraw"
-        method="POST"
-        id="withdrawForm"
-        style="display: none"
-      >
+      <form action="/transactions/withdraw" method="POST" id="withdrawForm" style="display: none;">
         <div class="form-group">
-          <label for="accountNumber">계좌 선택</label>
-          <select id="accountNumber" name="accountNumber" required>
+          <label for="withdrawAccountNumber">계좌 선택</label>
+          <select id="withdrawAccountNumber" name="accountNumber" required>
             <% accounts.forEach(function(account) { %>
             <option value="<%= account.account_number %>">
-              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%=
-              account.balance %>
+              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%= account.balance %>
             </option>
             <% }) %>
           </select>
         </div>
         <div class="form-group">
-          <label for="accountPassword">계좌 비밀번호</label>
-          <input
-            type="password"
-            id="accountPassword"
-            name="accountPassword"
-            required
-          />
+          <label for="withdrawAccountPassword">계좌 비밀번호</label>
+          <input type="password" id="withdrawAccountPassword" name="accountPassword" required readonly />
+          <button type="button" class="btn btn-primary" id="openPwPopupWithdraw">비밀번호 입력</button>
         </div>
         <div class="form-group">
-          <label for="amount">금액</label>
-          <input type="number" id="amount" name="amount" required />
+          <label for="withdrawAmount">금액</label>
+          <input type="number" id="withdrawAmount" name="amount" required />
         </div>
         <div class="form-group">
-          <label for="transferTime">보내는 시간</label>
-          <input type="text" id="transferTime2" name="transferTime" readonly />
+          <label for="withdrawTransferTime">보내는 시간</label>
+          <input type="text" id="withdrawTransferTime" name="transferTime" readonly />
         </div>
         <div class="form-group">
-          <button type="submit">보내기</button>
+          <button type="submit" class="btn btn-success">보내기</button>
         </div>
       </form>
 
       <!-- Transfer Form -->
-      <form
-        action="/transactions/transfer"
-        method="POST"
-        id="transferForm"
-        style="display: none"
-      >
+      <form action="/transactions/transfer" method="POST" id="transferForm" style="display: none;">
         <div class="form-group">
-          <label for="accountNumber">계좌 선택</label>
-          <select id="accountNumber" name="accountNumber" required>
+          <label for="transferAccountNumber">계좌 선택</label>
+          <select id="transferAccountNumber" name="accountNumber" required>
             <% accounts.forEach(function(account) { %>
             <option value="<%= account.account_number %>">
-              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%=
-              account.balance %>
+              <%= account.account_number.replace(/-/g, '') %> - 잔액: <%= account.balance %>
             </option>
             <% }) %>
           </select>
@@ -121,112 +99,107 @@
         <div class="form-group">
           <label for="recipientAccountPart1">받는 사람 계좌 번호</label>
           <div class="d-flex">
-            <input
-              type="number"
-              id="recipientAccountPart1"
-              name="recipientAccountPart1"
-              class="form-control"
-              placeholder="xxxx"
-              maxlength="4"
-              required
-            />
+            <input type="number" id="recipientAccountPart1" name="recipientAccountPart1" class="form-control" placeholder="xxxx" maxlength="4" required />
             <span>-</span>
-            <input
-              type="number"
-              id="recipientAccountPart2"
-              name="recipientAccountPart2"
-              class="form-control"
-              placeholder="xx"
-              maxlength="2"
-              required
-            />
+            <input type="number" id="recipientAccountPart2" name="recipientAccountPart2" class="form-control" placeholder="xx" maxlength="2" required />
             <span>-</span>
-            <input
-              type="number"
-              id="recipientAccountPart3"
-              name="recipientAccountPart3"
-              class="form-control"
-              placeholder="xxxxxx"
-              maxlength="6"
-              required
-            />
+            <input type="number" id="recipientAccountPart3" name="recipientAccountPart3" class="form-control" placeholder="xxxxxx" maxlength="6" required />
           </div>
         </div>
         <div class="form-group">
-          <label for="accountPassword">계좌 비밀번호</label>
-          <input
-            type="password"
-            id="accountPassword"
-            name="accountPassword"
-            required
-          />
+          <label for="transferAccountPassword">계좌 비밀번호</label>
+          <input type="password" id="transferAccountPassword" name="accountPassword" required readonly/>
+          <button type="button" class="btn btn-primary" id="openPwPopupTransfer">비밀번호 입력</button>
         </div>
         <div class="form-group">
-          <label for="amount">금액</label>
-          <input type="number" id="amount" name="amount" required />
+          <label for="transferAmount">금액</label>
+          <input type="number" id="transferAmount" name="amount" required />
         </div>
         <div class="form-group">
-          <label for="transferTime">보내는 시간</label>
-          <input type="text" id="transferTime3" name="transferTime" readonly />
+          <label for="transferTransferTime">보내는 시간</label>
+          <input type="text" id="transferTransferTime" name="transferTime" readonly />
         </div>
         <div class="form-group">
-          <button type="submit">보내기</button>
+          <button type="submit" class="btn btn-success">보내기</button>
         </div>
       </form>
+    </main>
+    <footer class="mt-auto text-white-50">
+      <p>Cover template for <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>, by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.</p>
+    </footer>
+  </div>
+  <div class="pwWrap" id="pwWrap" style="display:none;">
+    <button class="close-button">✖</button>
+    <div class="pwSection">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="message"></div>
     </div>
+    <div class="numberSection" id="numberSection">
+      <!-- Numbers will be inserted here by JavaScript -->
+    </div>
+  </div>
+  <script src="/public/password-popup.js"></script>
 
-    <script>
-      function getCurrentTime() {
-        const now = new Date();
-        return now.toLocaleString();
+  <script>
+    function getCurrentTime() {
+      const now = new Date();
+      return now.toLocaleString();
+    }
+
+    document.getElementById("depositForm").addEventListener("submit", function (e) {
+      document.getElementById("depositTransferTime").value = getCurrentTime();
+    });
+
+    document.getElementById("withdrawForm").addEventListener("submit", function (e) {
+      document.getElementById("withdrawTransferTime").value = getCurrentTime();
+    });
+
+    document.getElementById("transferForm").addEventListener("submit", function (e) {
+      document.getElementById("transferTransferTime").value = getCurrentTime();
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const transactionTypeInputs = document.querySelectorAll('input[name="transactionType"]');
+
+      function toggleForms() {
+        const selectedType = document.querySelector('input[name="transactionType"]:checked').value;
+        document.getElementById("depositForm").style.display = selectedType === "입금" ? "block" : "none";
+        document.getElementById("withdrawForm").style.display = selectedType === "출금" ? "block" : "none";
+        document.getElementById("transferForm").style.display = selectedType === "이체" ? "block" : "none";
       }
 
-      document
-        .getElementById("depositForm")
-        .addEventListener("submit", function (e) {
-          document.getElementById("transferTime1").value = getCurrentTime();
-        });
-
-      document
-        .getElementById("withdrawForm")
-        .addEventListener("submit", function (e) {
-          document.getElementById("transferTime2").value = getCurrentTime();
-        });
-
-      document
-        .getElementById("transferForm")
-        .addEventListener("submit", function (e) {
-          document.getElementById("transferTime3").value = getCurrentTime();
-        });
-
-      // 페이지 로드 시 현재 시간을 설정
-      document.getElementById("transferTime1").value = getCurrentTime();
-      document.getElementById("transferTime2").value = getCurrentTime();
-      document.getElementById("transferTime3").value = getCurrentTime();
-
-      document.addEventListener("DOMContentLoaded", function () {
-        const transactionTypeInputs = document.querySelectorAll(
-          'input[name="transactionType"]'
-        );
-
-        function toggleForms() {
-          const selectedType = document.querySelector(
-            'input[name="transactionType"]:checked'
-          ).value;
-          document.getElementById("depositForm").style.display =
-            selectedType === "입금" ? "block" : "none";
-          document.getElementById("withdrawForm").style.display =
-            selectedType === "출금" ? "block" : "none";
-          document.getElementById("transferForm").style.display =
-            selectedType === "이체" ? "block" : "none";
-        }
-
-        transactionTypeInputs.forEach((input) => {
-          input.addEventListener("change", toggleForms);
-        });
-
-        toggleForms(); // 초기 상태 설정
+      transactionTypeInputs.forEach((input) => {
+        input.addEventListener("change", toggleForms);
       });
-    </script>
-  </body>
+
+      toggleForms(); // 초기 상태 설정
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      new PasswordPopup({
+        wrapperId: 'pwWrap',
+        inputId: 'depositAccountPassword',
+        openButtonId: 'openPwPopupDeposit',
+        closeButtonClass: 'close-button'
+      });
+      new PasswordPopup({
+        wrapperId: 'pwWrap',
+        inputId: 'withdrawAccountPassword',
+        openButtonId: 'openPwPopupWithdraw',
+        closeButtonClass: 'close-button'
+      });
+      new PasswordPopup({
+        wrapperId: 'pwWrap',
+        inputId: 'transferAccountPassword',
+        openButtonId: 'openPwPopupTransfer',
+        closeButtonClass: 'close-button'
+      });
+    });
+  </script>
+</body>
 </html>
