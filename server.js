@@ -39,7 +39,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // 정적 파일 제공 설정
 app.use(express.static(path.join(__dirname, "assets")));
-
+app.use("/public", express.static(path.join(__dirname, "public")));
 // 뷰 엔진 설정
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));

@@ -35,10 +35,17 @@ router.get("/account", check, async (req, res) => {
     .find({ user_id: new ObjectId(user_id) }) // user_id를 ObjectId로 변환하여 사용
     .toArray()
     .then((accounts) => {
-      res.render("accountList", { accounts });
+      // 잔액 포맷팅
+      accounts.forEach((account) => {
+        account.balanceFormatted = account.balance.toLocaleString();
+      });
+      res.render("accountList", { accounts, user: req.session.user });
     })
     .catch((err) => {
-      return res.status(500).send();
+      console.error("계좌 정보 조회 실패:", err);
+      return res
+        .status(500)
+        .send("계좌 정보를 조회하는 중 오류가 발생했습니다.");
     });
 });
 
@@ -60,10 +67,24 @@ router.post("/account/enter", check, async (req, res) => {
   const salt = generateSalt();
   const hashedPw = sha(account_pw + salt);
 
+  let account_number;
+  let isUnique = false;
+
+  // 중복 계좌번호 생성 방지
+  while (!isUnique) {
+    account_number = account_Number();
+    const existingAccount = await mongodb
+      .collection("account")
+      .findOne({ account_number });
+    if (!existingAccount) {
+      isUnique = true;
+    }
+  }
+
   const newAccount = {
-    account_number: account_Number(),
+    account_number,
     account_pw: hashedPw,
-    balance: parseInt(balance),
+    balance: parseInt(balance.replace(/,/g, ""), 10),
     user_id: new ObjectId(user_id), // user_id를 ObjectId로 변환하여 사용
     account_date: new Date(),
   };
@@ -72,9 +93,10 @@ router.post("/account/enter", check, async (req, res) => {
     const result = await mongodb.collection("account").insertOne(newAccount);
 
     if (result.insertedId) {
+      const objectIdString = result.insertedId.toHexString(); // ObjectId를 문자열로 변환
       const sql =
         "INSERT INTO AccountSalt(account_id, account_salt) VALUES(?, ?)";
-      mysqldb.query(sql, [result.insertedId.toString(), salt], (err) => {
+      mysqldb.query(sql, [objectIdString, salt], (err) => {
         if (err) {
           console.log("Salt 저장 실패:", err);
         } else {
@@ -84,11 +106,17 @@ router.post("/account/enter", check, async (req, res) => {
 
       res.redirect("/account");
     } else {
-      res.render("login", { data: { alertMsg: "DB오류" }, user: null });
+      res.render("login", {
+        data: { alertMsg: "DB 오류로 계좌 등록에 실패했습니다." },
+        user: null,
+      });
     }
   } catch (err) {
     console.log("계좌 등록 실패:", err);
-    res.render("login", { data: { alertMsg: "계좌 등록 실패" }, user: null });
+    res.render("login", {
+      data: { alertMsg: "계좌 등록 중 오류가 발생했습니다." },
+      user: null,
+    });
   }
 });
 

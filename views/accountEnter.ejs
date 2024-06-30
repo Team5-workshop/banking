@@ -1,41 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-75" data-bs-theme="auto">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Add New Account</title>
+    <%- include('partials/head.html') %>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
     />
+    <link rel="stylesheet" href="/public/password-popup.css" />
+    <style>
+      .amount-in-words {
+        font-size: 0.9em;
+        color: grey;
+        margin-top: 5px;
+      }
+    </style>
   </head>
-  <body>
-    <div class="container mt-5">
-      <h1>Add New Account</h1>
-      <form action="/account/enter" method="POST">
-        <div class="mb-3">
-          <label for="account_pw" class="form-label">Account Password</label>
-          <input
-            type="password"
-            class="form-control"
-            id="account_pw"
-            name="account_pw"
-            required
-          />
+  <body class="d-flex h-100 text-center text-bg-dark">
+    <%- include('partials/backGround.html') %>
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+      <%- include('partials/header.ejs') %>
+
+      <main class="px-3">
+        <h1>새로운 계좌 등록하기</h1>
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <form action="/account/enter" method="POST">
+              <div class="mb-3">
+                <label for="balance" class="form-label">초기 잔액</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="balance"
+                  name="balance"
+                  required
+                />
+                <div id="amountInWords" class="amount-in-words"></div>
+              </div>
+              <div class="mb-3">
+                <label for="account_pw" class="form-label">계좌 비밀번호</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="account_pw"
+                  name="account_pw"
+                  placeholder="비밀번호 입력 버튼을 눌러주세요."
+                  readonly
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <button type="button" class="btn btn-primary" id="openPwPopup">
+                  비밀번호 입력
+                </button>
+              </div>
+              <button
+                type="submit"
+                class="btn btn-lg btn-light fw-bold border-white bg-white"
+              >
+                계좌 등록하기
+              </button>
+            </form>
+          </div>
         </div>
-        <div class="mb-3">
-          <label for="balance" class="form-label">Initial Balance</label>
-          <input
-            type="number"
-            class="form-control"
-            id="balance"
-            name="balance"
-            required
-          />
-        </div>
-        <button type="submit" class="btn btn-primary">Create Account</button>
-      </form>
+      </main>
+
+      <footer class="mt-auto text-white-50">
+        <p>
+          Cover template for
+          <a href="https://getbootstrap.com/" class="text-white">Bootstrap</a>,
+          by <a href="https://twitter.com/mdo" class="text-white">@mdo</a>.
+        </p>
+      </footer>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <%- include('partials/script.html') %>
+    <div class="pwWrap" id="pwWrap" style="display: none">
+      <button class="close-button">✖</button>
+      <div class="pwSection">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="message"></div>
+      </div>
+      <div class="numberSection" id="numberSection">
+        <!-- Numbers will be inserted here by JavaScript -->
+      </div>
+    </div>
+    <script src="/public/password-popup.js"></script>
+    <script>
+      function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      function numberToKorean(num) {
+        const units = ["", "만", "억", "조", "경"];
+        const smallUnits = ["", "십", "백", "천"];
+        let str = num.toString();
+        let result = "";
+        let unitIndex = 0;
+
+        while (str.length > 0) {
+          let chunk = str.slice(-4); // 4자리씩 끊기
+          str = str.slice(0, -4);
+          let chunkResult = "";
+
+          for (let i = 0; i < chunk.length; i++) {
+            const digit = chunk.charAt(chunk.length - 1 - i);
+            if (digit !== "0") {
+              chunkResult = digit + smallUnits[i] + chunkResult;
+            }
+          }
+
+          if (chunkResult !== "") {
+            result = chunkResult + units[unitIndex] + result;
+          }
+
+          unitIndex++;
+        }
+
+        return result || "0";
+      }
+
+      function formatKoreanAmount(num) {
+        const parsedNum = parseInt(num.replace(/,/g, ""), 10);
+        if (isNaN(parsedNum) || parsedNum < 10000) return ""; // 만원 미만은 한글로 표시하지 않음
+        return numberToKorean(parsedNum) + "원";
+      }
+
+      document
+        .getElementById("balance")
+        .addEventListener("input", function (e) {
+          const inputValue = e.target.value.replace(/,/g, "");
+          if (!isNaN(inputValue)) {
+            e.target.value = numberWithCommas(inputValue);
+            document.getElementById("amountInWords").textContent =
+              formatKoreanAmount(inputValue);
+          } else {
+            e.target.value = e.target.value.slice(0, -1);
+          }
+        });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new PasswordPopup({
+          wrapperId: "pwWrap",
+          inputId: "account_pw",
+          openButtonId: "openPwPopup",
+          closeButtonClass: "close-button",
+        });
+      });
+    </script>
   </body>
 </html>
